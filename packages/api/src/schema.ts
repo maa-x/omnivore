@@ -3450,6 +3450,7 @@ const schema = gql`
   enum PostErrorCode {
     UNAUTHORIZED
     BAD_REQUEST
+    NOT_FOUND
   }
 
   # Mutations
