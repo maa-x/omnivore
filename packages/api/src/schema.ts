@@ -3353,8 +3353,8 @@ const schema = gql`
   }
 
   input CreatePostInput {
-    title: String!
-    content: String!
+    title: String! @sanitize(minLength: 1, maxLength: 255)
+    content: String! @sanitize(minLength: 1)
     thumbnail: String
     libraryItemIds: [ID!]
     highlightIds: [ID!]
@@ -3373,7 +3373,6 @@ const schema = gql`
 
   enum CreatePostErrorCode {
     UNAUTHORIZED
-    BAD_REQUEST
   }
 
   input UpdatePostInput {
