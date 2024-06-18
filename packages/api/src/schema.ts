@@ -3342,11 +3342,11 @@ const schema = gql`
     id: ID!
     title: String!
     content: String!
-    author: User!
+    author: String!
     ownedByViewer: Boolean!
     thumbnail: String
     thought: String
-    libraryItems: [Article!]!
+    libraryItems: [Article!]
     highlights: [Highlight!]
     createdAt: Date!
     updatedAt: Date!
@@ -3373,6 +3373,7 @@ const schema = gql`
 
   enum CreatePostErrorCode {
     UNAUTHORIZED
+    BAD_REQUEST
   }
 
   input UpdatePostInput {
