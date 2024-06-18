@@ -3377,8 +3377,8 @@ const schema = gql`
 
   input UpdatePostInput {
     id: ID!
-    title: String
-    content: String
+    title: String @sanitize(minLength: 1, maxLength: 255)
+    content: String @sanitize(minLength: 1)
     thumbnail: String
     libraryItemIds: [ID!]
     highlightIds: [ID!]
