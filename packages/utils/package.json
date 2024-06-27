@@ -1,0 +1,21 @@
+{
+  "name": "@omnivore/utils",
+  "version": "1.0.0",
+  "description": "Utility package for storage services",
+  "main": "build/src/storage_service.js",
+  "files": [
+    "build/src"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "bullmq": "^5.1.1",
+    "dotenv": "^8.2.0",
+    "@google-cloud/functions-framework": "^3.0.0",
+    "@google-cloud/storage": "^7.0.1"
+  },
+  "volta": {
+    "extends": "../../package.json"
+  }
+}

@@ -4,6 +4,7 @@ import { RequestHandler } from 'express'
 import { analytics } from './analytics'
 import { queueSavePageJob } from './job'
 import { redisDataSource } from './redis_data_source'
+import { storageService } from '@omnivore/utils'
 
 interface UserConfig {
   id: string
@@ -56,17 +57,6 @@ interface FetchResult {
   contentType?: string
 }
 
-const storage = process.env.GCS_UPLOAD_SA_KEY_FILE_PATH
-  ? new Storage({ keyFilename: process.env.GCS_UPLOAD_SA_KEY_FILE_PATH })
-  : new Storage()
-const bucketName = process.env.GCS_UPLOAD_BUCKET || 'omnivore-files'
-
-const uploadToBucket = async (filePath: string, data: string) => {
-  await storage
-    .bucket(bucketName)
-    .file(filePath)
-    .save(data, { public: false, timeout: 30000 })
-}
 
 const uploadOriginalContent = async (
   users: UserConfig[],
@@ -77,7 +67,7 @@ const uploadOriginalContent = async (
     users.map(async (user) => {
       const filePath = `content/${user.id}/${user.libraryItemId}.${savedTimestamp}.original`
 
-      await uploadToBucket(filePath, content)
+      await storageService.save(filePath, content)
 
       console.log(`Original content uploaded to ${filePath}`)
     })
