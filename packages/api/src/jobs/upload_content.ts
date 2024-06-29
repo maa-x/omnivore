@@ -2,7 +2,7 @@ import { Highlight } from '../entity/highlight'
 import { findLibraryItemById } from '../services/library_item'
 import { logger } from '../utils/logger'
 import { htmlToHighlightedMarkdown, htmlToMarkdown } from '../utils/parser'
-import { isFileExists, uploadToBucket } from '../utils/uploads'
+import { storageService } from '@omnivore/utils'
 
 export const UPLOAD_CONTENT_JOB = 'upload-content'
 
@@ -99,7 +99,7 @@ export const uploadContentJob = async (data: UploadContentJobData) => {
     libraryItem.highlights
   )
 
-  const exists = await isFileExists(filePath)
+  const exists = await storageService.isFileExists(filePath)
   if (exists) {
     logger.info(`File already exists: ${filePath}`)
     return
@@ -108,7 +108,7 @@ export const uploadContentJob = async (data: UploadContentJobData) => {
   logger.info(`Uploading content: ${filePath}`)
   logger.profile('Uploader')
 
-  await uploadToBucket(filePath, Buffer.from(convertedContent), {
+  await storageService.save(filePath, Buffer.from(convertedContent), {
     contentType: CONTENT_TYPES[format],
     timeout: 10_000, // 10 seconds
   })

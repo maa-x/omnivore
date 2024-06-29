@@ -14,7 +14,7 @@ import { uploadFile } from '../services/upload_file'
 import { logError, logger } from '../utils/logger'
 import {
   contentFilePath,
-  downloadFromBucket,
+  downloadFromStorageService,
   downloadFromUrl,
   isFileExists,
   uploadToSignedUrl,
@@ -255,7 +255,7 @@ export const savePageJob = async (data: Data, attemptsMade: number) => {
         throw new Error('Original content file does not exist')
       }
 
-      content = (await downloadFromBucket(filePath)).toString()
+      content = (await downloadFromStorageService(filePath)).toString()
       logger.info('Downloaded original content from:', { filePath })
     }
 

@@ -34,7 +34,7 @@ import { enqueueBulkUploadContentJob } from '../utils/createTask'
 import { deepDelete, setRecentlySavedItemInRedis } from '../utils/helpers'
 import { logError, logger } from '../utils/logger'
 import { parseSearchQuery } from '../utils/search'
-import { contentFilePath, downloadFromBucket } from '../utils/uploads'
+import { contentFilePath, downloadFromStorageService } from '../utils/uploads'
 import { HighlightEvent } from './highlights'
 import { addLabelsToLibraryItem, LabelEvent } from './labels'
 
@@ -1729,7 +1729,7 @@ export const downloadOriginalContent = async (
   libraryItemId: string,
   savedAt: Date
 ) => {
-  return downloadFromBucket(
+  return downloadFromStorageService(
     contentFilePath({
       userId,
       libraryItemId,

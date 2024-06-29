@@ -13,12 +13,9 @@ import { enqueueProcessYouTubeTranscript } from '../utils/createTask'
 import { stringToHash } from '../utils/helpers'
 import { logger } from '../utils/logger'
 import { parsePreparedContent } from '../utils/parser'
-import {
-  downloadFromBucket,
-  isFileExists,
-  uploadToBucket,
-} from '../utils/uploads'
 import { videoIdFromYouTubeUrl } from '../utils/youtube'
+import { storageService } from '@omnivore/utils'
+import { log } from 'winston'
 
 export interface ProcessYouTubeVideoJobData {
   userId: string
@@ -193,14 +190,14 @@ const fetchCachedYouTubeTranscript = async (
 ): Promise<string | undefined> => {
   try {
     const filePath = `youtube-transcripts/${videoId}/${transcriptHash}.${promptHash}.html`
-    const exists = await isFileExists(filePath)
+    const exists = await storageService.isFileExists(filePath)
     if (!exists) {
       logger.info(`cached transcript not found: ${filePath}`)
       return undefined
     }
 
-    const buffer = await downloadFromBucket(filePath)
-    return buffer.toString()
+    const cachedTranscript = await storageService.download(filePath)
+    return cachedTranscript
   } catch (err) {
     logger.info(`unable to fetch cached transcript`, { error: err })
   }
@@ -214,7 +211,7 @@ const cacheYouTubeTranscript = async (
   promptHash: string,
   transcript: string
 ): Promise<void> => {
-  await uploadToBucket(
+  await storageService.save(
     `youtube-transcripts/${videoId}/${transcriptHash}.${promptHash}.html`,
     Buffer.from(transcript)
   )

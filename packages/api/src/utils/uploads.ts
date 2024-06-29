@@ -7,6 +7,7 @@ import { env } from '../env'
 import { PageType } from '../generated/graphql'
 import { ContentFormat } from '../jobs/upload_content'
 import { logger } from './logger'
+import { storageService } from '@omnivore/utils'
 
 export const contentReaderForLibraryItem = (
   itemType: string,
@@ -38,7 +39,7 @@ const bucketName = env.fileUpload.gcsUploadBucket
 const maxContentLength = 10 * 1024 * 1024 // 10MB
 
 export const countOfFilesWithPrefix = async (prefix: string) => {
-  const [files] = await storage.bucket(bucketName).getFiles({ prefix })
+  const [files] = await storageService.getFiles(prefix);
   return files.length
 }
 
@@ -47,21 +48,7 @@ export const generateUploadSignedUrl = async (
   contentType: string,
   selectedBucket?: string
 ): Promise<string> => {
-  // These options will allow temporary uploading of file with requested content type
-  const options: GetSignedUrlConfig = {
-    version: 'v4',
-    action: 'write',
-    expires: Date.now() + 15 * 60 * 1000, // 15 minutes
-    contentType: contentType,
-  }
-  logger.info('signed url for: ', options)
-
-  // Get a v4 signed URL for uploading file
-  const [url] = await storage
-    .bucket(selectedBucket || bucketName)
-    .file(filePathName)
-    .getSignedUrl(options)
-  return url
+  return storageService.generateSignedUrl(filePathName, contentType, selectedBucket)
 }
 
 export const generateDownloadSignedUrl = async (
@@ -110,14 +97,7 @@ export const uploadToBucket = async (
   options?: { contentType?: string; public?: boolean; timeout?: number },
   selectedBucket?: string
 ): Promise<void> => {
-  await storage
-    .bucket(selectedBucket || bucketName)
-    .file(filePath)
-    .save(data, { timeout: 30000, ...options }) // default timeout 30s
-}
-
-export const createGCSFile = (filename: string): File => {
-  return storage.bucket(bucketName).file(filename)
+  await storageService.save(filePath, data, { timeout: 30000, ...options })
 }
 
 export const downloadFromUrl = async (
@@ -151,16 +131,12 @@ export const uploadToSignedUrl = async (
 }
 
 export const isFileExists = async (filePath: string): Promise<boolean> => {
-  const [exists] = await storage.bucket(bucketName).file(filePath).exists()
-  return exists
+  return storageService.isFileExists(filePath)
 }
 
-export const downloadFromBucket = async (filePath: string): Promise<Buffer> => {
-  const file = storage.bucket(bucketName).file(filePath)
-
-  // Download the file contents
-  const [data] = await file.download()
-  return data
+export const downloadFromStorageService = async (filePath: string): Promise<Buffer> => {
+  const file = await storageService.download(filePath)
+  return Buffer.from(file)
 }
 
 export const contentFilePath = ({
