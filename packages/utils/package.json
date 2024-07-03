@@ -2,8 +2,8 @@
   "name": "@omnivore/utils",
   "version": "1.0.0",
   "description": "Utility package for storage services",
-  "main": "build/src/storage_service.js",
-  "types": "build/src/storage_service.d.ts",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
   "files": [
     "build/src"
   ],
@@ -11,10 +11,14 @@
     "build": "tsc"
   },
   "dependencies": {
-    "dotenv": "^8.2.0",
-    "@google-cloud/storage": "^7.0.1"
+    "@google-cloud/storage": "^7.0.1",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0"
   },
   "volta": {
     "extends": "../../package.json"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17"
   }
 }

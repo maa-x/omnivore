@@ -48,6 +48,7 @@ import { getClientFromUserAgent } from './utils/helpers'
 import { buildLogger, buildLoggerTransport, logger } from './utils/logger'
 import { apiLimiter, authLimiter } from './utils/rate_limit'
 import { shortcutsRouter } from './routers/shortcuts_router'
+import { storageServiceRouter } from '@omnivore/utils'
 
 const PORT = process.env.PORT || 4000
 
@@ -105,6 +106,7 @@ export const createApp = (): Express => {
   app.use('/api/tasks', taskRouter())
   app.use('/api/digest', digestRouter())
   app.use('/api/content', contentRouter())
+  app.use('/api/services/utils', storageServiceRouter())
 
   app.use('/svc/pubsub/content', contentServiceRouter())
   app.use('/svc/pubsub/links', linkServiceRouter())

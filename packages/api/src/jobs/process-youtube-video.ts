@@ -197,7 +197,7 @@ const fetchCachedYouTubeTranscript = async (
     }
 
     const cachedTranscript = await storageService.download(filePath)
-    return cachedTranscript
+    return cachedTranscript.toString()
   } catch (err) {
     logger.info(`unable to fetch cached transcript`, { error: err })
   }
@@ -297,7 +297,7 @@ export const processYouTubeVideo = async (
     })
   }
 
-  if (updatedLibraryItem !== {}) {
+  if (Object.keys(updatedLibraryItem).length !== 0) {
     await updateLibraryItem(
       jobData.libraryItemId,
       updatedLibraryItem,

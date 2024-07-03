@@ -67,7 +67,7 @@ const uploadOriginalContent = async (
     users.map(async (user) => {
       const filePath = `content/${user.id}/${user.libraryItemId}.${savedTimestamp}.original`
 
-      await storageService.save(filePath, content)
+      await storageService.save(filePath, Buffer.from(content))
 
       console.log(`Original content uploaded to ${filePath}`)
     })

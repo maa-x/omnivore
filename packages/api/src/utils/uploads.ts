@@ -26,12 +26,12 @@ export const contentReaderForLibraryItem = (
   }
 }
 
-/* On GAE/Prod, we shall rely on default app engine service account credentials.
- * Two changes needed: 1) add default service account to our uploads GCS Bucket
- * with create and view access. 2) add 'Service Account Token Creator' role to
- * the default app engine service account on the IAM page. We also need to
- * enable IAM related APIs on the project.
- */
+// /* On GAE/Prod, we shall rely on default app engine service account credentials.
+//  * Two changes needed: 1) add default service account to our uploads GCS Bucket
+//  * with create and view access. 2) add 'Service Account Token Creator' role to
+//  * the default app engine service account on the IAM page. We also need to
+//  * enable IAM related APIs on the project.
+//  */
 export const storage = env.fileUpload?.gcsUploadSAKeyFilePath
   ? new Storage({ keyFilename: env.fileUpload.gcsUploadSAKeyFilePath })
   : new Storage()
@@ -39,7 +39,8 @@ const bucketName = env.fileUpload.gcsUploadBucket
 const maxContentLength = 10 * 1024 * 1024 // 10MB
 
 export const countOfFilesWithPrefix = async (prefix: string) => {
-  const [files] = await storageService.getFiles(prefix);
+  const files = await storageService.getFiles(prefix);
+  logger.info(`Files with prefix ${prefix}: ${files.length}`)
   return files.length
 }
 
@@ -48,7 +49,7 @@ export const generateUploadSignedUrl = async (
   contentType: string,
   selectedBucket?: string
 ): Promise<string> => {
-  return storageService.generateSignedUrl(filePathName, contentType, selectedBucket)
+  return storageService.getUploadSignedUrl(filePathName, {contentType: contentType, selectedBucket: selectedBucket})
 }
 
 export const generateDownloadSignedUrl = async (
@@ -57,18 +58,7 @@ export const generateDownloadSignedUrl = async (
     expires?: number
   }
 ): Promise<string> => {
-  const options: GetSignedUrlConfig = {
-    version: 'v4',
-    action: 'read',
-    expires: Date.now() + 240 * 60 * 1000, // four hours
-    ...config,
-  }
-  const [url] = await storage
-    .bucket(bucketName)
-    .file(filePathName)
-    .getSignedUrl(options)
-  logger.info(`generating download signed url: ${url}`)
-  return url
+  return storageService.getDownloadSignedUrl(filePathName, config)
 }
 
 export const getStorageFileDetails = async (
@@ -76,12 +66,7 @@ export const getStorageFileDetails = async (
   fileName: string
 ): Promise<{ md5Hash: string; fileUrl: string }> => {
   const filePathName = generateUploadFilePathName(id, fileName)
-  const file = storage.bucket(bucketName).file(filePathName)
-  const [metadata] = await file.getMetadata()
-  // GCS returns MD5 Hash in base64 encoding, we convert it here to hex string
-  const md5Hash = Buffer.from(metadata.md5Hash || '', 'base64').toString('hex')
-
-  return { md5Hash, fileUrl: file.publicUrl() }
+  return await storageService.getFileMetadata(filePathName)
 }
 
 export const generateUploadFilePathName = (
